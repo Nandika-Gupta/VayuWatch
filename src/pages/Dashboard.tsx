@@ -8,13 +8,29 @@ import HealthAdvice from '@/components/HealthAdvice';
 import PollutantCard from '@/components/PollutantCard';
 import TrendChart from '@/components/TrendChart';
 import { Button } from '@/components/ui/button';
-import { useCurrentAQI, useAQIHistory, seedHistoricalData } from '@/hooks/useAQI';
+import { useCurrentAQI, useAQIHistory, useCities, seedHistoricalData } from '@/hooks/useAQI';
+import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
 const Dashboard = () => {
-  const [selectedCity, setSelectedCity] = useState('New York');
+  const { profile } = useAuth();
+  const { data: cities } = useCities();
+  
+  // Get preferred city name from profile or default to New York
+  const preferredCityName = cities?.find(c => c.id === profile?.preferred_city_id)?.name || 'New York';
+  const [selectedCity, setSelectedCity] = useState(preferredCityName);
   const [isSeeding, setIsSeeding] = useState(false);
+  
+  // Update selected city when preferred city changes
+  useEffect(() => {
+    if (profile?.preferred_city_id && cities) {
+      const city = cities.find(c => c.id === profile.preferred_city_id);
+      if (city) {
+        setSelectedCity(city.name);
+      }
+    }
+  }, [profile?.preferred_city_id, cities]);
   
   const { data: currentData, isLoading: isLoadingCurrent, refetch: refetchCurrent } = useCurrentAQI(selectedCity);
   const { data: historyData, isLoading: isLoadingHistory, refetch: refetchHistory } = useAQIHistory(selectedCity, 1);
