@@ -14,7 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      aqi_readings: {
+        Row: {
+          aqi: number
+          category: string
+          city_id: string
+          co: number | null
+          created_at: string
+          id: string
+          no2: number | null
+          o3: number | null
+          pm10: number | null
+          pm25: number | null
+          recorded_at: string
+          so2: number | null
+          source: string | null
+        }
+        Insert: {
+          aqi: number
+          category: string
+          city_id: string
+          co?: number | null
+          created_at?: string
+          id?: string
+          no2?: number | null
+          o3?: number | null
+          pm10?: number | null
+          pm25?: number | null
+          recorded_at?: string
+          so2?: number | null
+          source?: string | null
+        }
+        Update: {
+          aqi?: number
+          category?: string
+          city_id?: string
+          co?: number | null
+          created_at?: string
+          id?: string
+          no2?: number | null
+          o3?: number | null
+          pm10?: number | null
+          pm25?: number | null
+          recorded_at?: string
+          so2?: number | null
+          source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aqi_readings_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cities: {
+        Row: {
+          country: string
+          created_at: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+        }
+        Insert: {
+          country?: string
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+        }
+        Update: {
+          country?: string
+          created_at?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
