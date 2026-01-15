@@ -1,1 +1,13 @@
 project_id = "zwzkfhourjnmgfwlpgba"
+
+[functions.aqi-collect]
+verify_jwt = false
+
+[functions.aqi-current]
+verify_jwt = false
+
+[functions.aqi-history]
+verify_jwt = false
+
+[functions.aqi-seed]
+verify_jwt = false
