@@ -137,23 +137,36 @@ Deno.serve(async (req) => {
 
     console.log(`Generated ${readings.length} readings to insert`);
 
-    // Insert in batches of 500
-    const batchSize = 500;
+    // Insert in smaller batches to avoid connection issues
+    const batchSize = 50;
     let insertedCount = 0;
+    const totalBatches = Math.ceil(readings.length / batchSize);
 
     for (let i = 0; i < readings.length; i += batchSize) {
       const batch = readings.slice(i, i + batchSize);
-      const { data, error } = await supabase
-        .from('aqi_readings')
-        .insert(batch);
+      const batchNum = Math.floor(i / batchSize) + 1;
+      
+      try {
+        const { error } = await supabase
+          .from('aqi_readings')
+          .insert(batch);
 
-      if (error) {
-        console.error(`Batch insert error at ${i}:`, error);
-        throw new Error(`Failed to insert batch: ${error.message}`);
+        if (error) {
+          console.error(`Batch ${batchNum} insert error:`, error);
+          throw new Error(`Failed to insert batch ${batchNum}: ${error.message}`);
+        }
+
+        insertedCount += batch.length;
+        console.log(`Inserted batch ${batchNum}/${totalBatches}: ${batch.length} readings`);
+        
+        // Small delay between batches to prevent connection overload
+        if (i + batchSize < readings.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      } catch (batchError) {
+        console.error(`Error in batch ${batchNum}:`, batchError);
+        throw batchError;
       }
-
-      insertedCount += batch.length;
-      console.log(`Inserted batch ${Math.floor(i / batchSize) + 1}: ${batch.length} readings`);
     }
 
     console.log(`Successfully seeded ${insertedCount} historical readings`);
