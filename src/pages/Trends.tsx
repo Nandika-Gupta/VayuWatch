@@ -22,7 +22,7 @@ import {
 import { toast } from 'sonner';
 
 const Trends = () => {
-  const [selectedCity, setSelectedCity] = useState('New York');
+  const [selectedCity, setSelectedCity] = useState('Delhi');
   const [timeRange, setTimeRange] = useState<7 | 14 | 30>(7);
   
   const { data: historyData, isLoading, refetch } = useAQIHistory(selectedCity, timeRange);
@@ -102,9 +102,11 @@ const Trends = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Air Quality Trends</h1>
+            <h1 className="text-2xl font-bold text-foreground font-mono">
+              <span className="text-primary">{'<'}</span>Trends<span className="text-primary">{'/>'}</span>
+            </h1>
             <p className="text-muted-foreground mt-1">
-              Historical data and patterns for {selectedCity}
+              Historical data and patterns for <span className="text-foreground font-medium">{selectedCity}</span>, India
             </p>
           </div>
           <div className="flex items-center gap-2">
