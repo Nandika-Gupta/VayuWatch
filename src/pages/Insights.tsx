@@ -203,9 +203,11 @@ const Insights = () => {
       <div className="space-y-6 animate-fade-in">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Health Insights</h1>
+          <h1 className="text-2xl font-bold text-foreground font-mono">
+            <span className="text-primary">{'<'}</span>Health Insights<span className="text-primary">{'/>'}</span>
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Personalized recommendations based on air quality levels
+            CPCB-based health recommendations for India's air quality levels
           </p>
         </div>
 
@@ -307,30 +309,30 @@ const Insights = () => {
           })}
         </div>
 
-        {/* AQI Scale Reference */}
-        <AQICard title="AQI Scale Reference">
+        {/* AQI Scale Reference - India CPCB Standard */}
+        <AQICard title="India NAQI Scale (CPCB Standard)">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border">
                   <th className="text-left py-3 px-4 font-medium text-muted-foreground">AQI Range</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Level</th>
-                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Health Concern</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Category</th>
+                  <th className="text-left py-3 px-4 font-medium text-muted-foreground">Health Impact</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { range: '0-50', level: 'Good', color: 'hsl(142, 71%, 45%)', concern: 'Air quality is satisfactory' },
-                  { range: '51-100', level: 'Moderate', color: 'hsl(45, 93%, 47%)', concern: 'Acceptable for most' },
-                  { range: '101-150', level: 'Unhealthy for Sensitive', color: 'hsl(27, 96%, 61%)', concern: 'Sensitive groups affected' },
-                  { range: '151-200', level: 'Unhealthy', color: 'hsl(0, 72%, 51%)', concern: 'Everyone may experience effects' },
-                  { range: '201-300', level: 'Very Unhealthy', color: 'hsl(282, 68%, 38%)', concern: 'Health alert for everyone' },
-                  { range: '301+', level: 'Hazardous', color: 'hsl(340, 82%, 35%)', concern: 'Emergency conditions' },
+                  { range: '0-50', level: 'Good', color: 'hsl(142, 71%, 45%)', concern: 'Minimal impact' },
+                  { range: '51-100', level: 'Satisfactory', color: 'hsl(45, 93%, 47%)', concern: 'Minor breathing discomfort to sensitive people' },
+                  { range: '101-200', level: 'Moderate', color: 'hsl(27, 96%, 61%)', concern: 'Breathing discomfort to people with lung/heart disease' },
+                  { range: '201-300', level: 'Poor', color: 'hsl(0, 72%, 51%)', concern: 'Breathing discomfort to most people on prolonged exposure' },
+                  { range: '301-400', level: 'Very Poor', color: 'hsl(282, 68%, 38%)', concern: 'Respiratory illness on prolonged exposure' },
+                  { range: '401-500', level: 'Severe', color: 'hsl(340, 82%, 35%)', concern: 'Affects healthy people, seriously impacts those with diseases' },
                 ].map((row) => (
                   <tr key={row.range} className="border-b border-border last:border-0">
                     <td className="py-3 px-4">
                       <span 
-                        className="inline-block px-2 py-1 rounded text-white text-xs font-medium"
+                        className="inline-block px-2 py-1 rounded text-white text-xs font-medium font-mono"
                         style={{ backgroundColor: row.color }}
                       >
                         {row.range}
@@ -343,6 +345,9 @@ const Insights = () => {
               </tbody>
             </table>
           </div>
+          <p className="text-xs text-muted-foreground mt-4 font-mono">
+            Source: Central Pollution Control Board (CPCB), Ministry of Environment, Forest and Climate Change, India
+          </p>
         </AQICard>
       </div>
     </Layout>

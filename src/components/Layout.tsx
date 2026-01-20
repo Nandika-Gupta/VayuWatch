@@ -56,7 +56,10 @@ const Layout = ({ children }: LayoutProps) => {
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
                 <Wind className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-semibold text-foreground">Airlytics</span>
+              <div className="flex flex-col">
+                <span className="text-xl font-semibold text-foreground leading-tight">VayuWatch</span>
+                <span className="text-[10px] text-muted-foreground font-mono leading-none">India AQI Analytics</span>
+              </div>
             </Link>
 
             {/* Desktop Navigation */}
@@ -217,8 +220,12 @@ const Layout = ({ children }: LayoutProps) => {
       <footer className="border-t border-border bg-card mt-auto">
         <div className="container mx-auto px-4 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>© 2024 Airlytics. Making air quality accessible.</p>
-            <p className="text-xs">Data for demonstration purposes only.</p>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-foreground">VayuWatch</span>
+              <span>•</span>
+              <span>Making India's air quality data accessible</span>
+            </div>
+            <p className="text-xs">Data based on CPCB standards. For demonstration purposes.</p>
           </div>
         </div>
       </footer>

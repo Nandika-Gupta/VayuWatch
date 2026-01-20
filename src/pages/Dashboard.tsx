@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Clock, Droplets, Thermometer, Wind, RefreshCw, Database } from 'lucide-react';
+import { Clock, Droplets, Thermometer, Wind, RefreshCw, Database, TrendingUp, TrendingDown, Minus, AlertTriangle } from 'lucide-react';
 import Layout from '@/components/Layout';
 import CitySelector from '@/components/CitySelector';
 import AQIGauge from '@/components/AQIGauge';
@@ -12,13 +12,14 @@ import { useCurrentAQI, useAQIHistory, useCities, seedHistoricalData } from '@/h
 import { useAuth } from '@/contexts/AuthContext';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { calculateMovingAverage, calculateTrendDirection, getHealthRisk } from '@/lib/aqi';
 
 const Dashboard = () => {
   const { profile } = useAuth();
   const { data: cities } = useCities();
   
-  // Get preferred city name from profile or default to New York
-  const preferredCityName = cities?.find(c => c.id === profile?.preferred_city_id)?.name || 'New York';
+  // Get preferred city name from profile or default to Delhi
+  const preferredCityName = cities?.find(c => c.id === profile?.preferred_city_id)?.name || 'Delhi';
   const [selectedCity, setSelectedCity] = useState(preferredCityName);
   const [isSeeding, setIsSeeding] = useState(false);
   
@@ -33,10 +34,19 @@ const Dashboard = () => {
   }, [profile?.preferred_city_id, cities]);
   
   const { data: currentData, isLoading: isLoadingCurrent, refetch: refetchCurrent } = useCurrentAQI(selectedCity);
-  const { data: historyData, isLoading: isLoadingHistory, refetch: refetchHistory } = useAQIHistory(selectedCity, 1);
+  const { data: historyData, isLoading: isLoadingHistory, refetch: refetchHistory } = useAQIHistory(selectedCity, 7);
 
   const currentAQI = currentData?.current?.aqi || 0;
+  const previousAQI = currentData?.previous?.aqi || currentAQI;
   const lastUpdated = currentData?.current?.recorded_at ? new Date(currentData.current.recorded_at) : new Date();
+
+  // Calculate analytics
+  const aqiValues = historyData?.history?.map(h => h.aqi) || [];
+  const movingAvg = calculateMovingAverage(aqiValues, 3);
+  const trendDirection = calculateTrendDirection(aqiValues);
+  const healthRisk = getHealthRisk(currentAQI);
+  const dayChange = currentAQI - previousAQI;
+  const dayChangePercent = previousAQI ? ((dayChange / previousAQI) * 100).toFixed(1) : '0';
 
   // Generate hourly data from the latest readings or mock if no data
   const hourlyData = historyData?.history?.length 
@@ -47,15 +57,19 @@ const Dashboard = () => {
       }));
 
   const pollutants = currentData?.current ? [
-    { name: 'PM2.5', value: currentData.current.pm25, unit: 'μg/m³', description: 'Fine particulate matter' },
-    { name: 'PM10', value: currentData.current.pm10, unit: 'μg/m³', description: 'Coarse particulate matter' },
+    { name: 'PM2.5', value: currentData.current.pm25, unit: 'μg/m³', description: 'Fine particles < 2.5μm' },
+    { name: 'PM10', value: currentData.current.pm10, unit: 'μg/m³', description: 'Coarse particles < 10μm' },
     { name: 'O₃', value: currentData.current.o3, unit: 'ppb', description: 'Ground-level ozone' },
     { name: 'NO₂', value: currentData.current.no2, unit: 'ppb', description: 'Nitrogen dioxide' },
+    { name: 'SO₂', value: currentData.current.so2, unit: 'ppb', description: 'Sulphur dioxide' },
+    { name: 'CO', value: currentData.current.co, unit: 'mg/m³', description: 'Carbon monoxide' },
   ] : [
-    { name: 'PM2.5', value: 0, unit: 'μg/m³', description: 'Fine particulate matter' },
-    { name: 'PM10', value: 0, unit: 'μg/m³', description: 'Coarse particulate matter' },
+    { name: 'PM2.5', value: 0, unit: 'μg/m³', description: 'Fine particles < 2.5μm' },
+    { name: 'PM10', value: 0, unit: 'μg/m³', description: 'Coarse particles < 10μm' },
     { name: 'O₃', value: 0, unit: 'ppb', description: 'Ground-level ozone' },
     { name: 'NO₂', value: 0, unit: 'ppb', description: 'Nitrogen dioxide' },
+    { name: 'SO₂', value: 0, unit: 'ppb', description: 'Sulphur dioxide' },
+    { name: 'CO', value: 0, unit: 'mg/m³', description: 'Carbon monoxide' },
   ];
 
   const handleSeedData = async () => {
@@ -85,9 +99,11 @@ const Dashboard = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Air Quality Dashboard</h1>
+            <h1 className="text-2xl font-bold text-foreground font-mono">
+              <span className="text-primary">{'<'}</span>AQI Dashboard<span className="text-primary">{'/>'}</span>
+            </h1>
             <p className="text-muted-foreground mt-1">
-              Real-time air quality monitoring for {selectedCity}
+              Real-time air quality analytics for <span className="text-foreground font-medium">{selectedCity}</span>, India
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -112,6 +128,54 @@ const Dashboard = () => {
           </div>
         )}
 
+        {/* Analytics Summary Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <AQICard title="Health Risk" className="text-center">
+            <div className={`text-2xl font-bold ${healthRisk.color}`}>
+              {healthRisk.icon} {healthRisk.level}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Current risk level</p>
+          </AQICard>
+          
+          <AQICard title="24h Change" className="text-center">
+            <div className="flex items-center justify-center gap-1">
+              {dayChange > 0 ? (
+                <TrendingUp className="h-5 w-5 text-aqi-unhealthy" />
+              ) : dayChange < 0 ? (
+                <TrendingDown className="h-5 w-5 text-aqi-good" />
+              ) : (
+                <Minus className="h-5 w-5 text-muted-foreground" />
+              )}
+              <span className={`text-2xl font-bold ${dayChange > 0 ? 'text-aqi-unhealthy' : dayChange < 0 ? 'text-aqi-good' : 'text-foreground'}`}>
+                {dayChange > 0 ? '+' : ''}{dayChange}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">{dayChangePercent}% vs yesterday</p>
+          </AQICard>
+          
+          <AQICard title="7-Day Trend" className="text-center">
+            <div className="flex items-center justify-center gap-2">
+              {trendDirection === 'improving' && <TrendingDown className="h-5 w-5 text-aqi-good" />}
+              {trendDirection === 'worsening' && <TrendingUp className="h-5 w-5 text-aqi-unhealthy" />}
+              {trendDirection === 'stable' && <Minus className="h-5 w-5 text-muted-foreground" />}
+              <span className={`text-lg font-bold capitalize ${
+                trendDirection === 'improving' ? 'text-aqi-good' : 
+                trendDirection === 'worsening' ? 'text-aqi-unhealthy' : 'text-foreground'
+              }`}>
+                {trendDirection}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Weekly pattern</p>
+          </AQICard>
+          
+          <AQICard title="Moving Avg (3-day)" className="text-center">
+            <div className="text-2xl font-bold text-primary font-mono">
+              {movingAvg.length > 0 ? movingAvg[movingAvg.length - 1] : '--'}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Smoothed AQI</p>
+          </AQICard>
+        </div>
+
         {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* AQI Gauge Card */}
@@ -126,9 +190,9 @@ const Dashboard = () => {
               ) : (
                 <AQIGauge value={currentAQI} />
               )}
-              <div className="flex items-center gap-2 mt-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2 mt-6 text-sm text-muted-foreground font-mono">
                 <Clock className="h-4 w-4" />
-                <span>Updated {lastUpdated.toLocaleTimeString()}</span>
+                <span>Updated {lastUpdated.toLocaleTimeString('en-IN')}</span>
               </div>
             </div>
           </AQICard>
@@ -160,29 +224,47 @@ const Dashboard = () => {
         </div>
 
         {/* Pollutants Grid */}
-        <AQICard title="Pollutant Breakdown">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <AQICard title="Pollutant Breakdown (CPCB Standards)">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {pollutants.map((pollutant) => (
               <PollutantCard key={pollutant.name} {...pollutant} />
             ))}
           </div>
         </AQICard>
 
-        {/* Weather Context - Placeholder */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <AQICard title="Temperature" icon={<Thermometer className="h-4 w-4" />}>
-            <p className="text-3xl font-bold text-foreground">72°F</p>
-            <p className="text-sm text-muted-foreground mt-1">Feels like 74°F</p>
+        {/* India-specific context */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <AQICard title="Regional Context" icon={<AlertTriangle className="h-4 w-4" />}>
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                <span className="text-foreground font-medium">{selectedCity}</span> is monitored by CPCB 
+                (Central Pollution Control Board) with real-time data from CAAQMS stations.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                <span className="px-2 py-1 bg-muted rounded text-xs font-mono">NAQI: {currentAQI}</span>
+                <span className="px-2 py-1 bg-muted rounded text-xs font-mono">PM2.5 Primary</span>
+              </div>
+            </div>
           </AQICard>
           
-          <AQICard title="Humidity" icon={<Droplets className="h-4 w-4" />}>
-            <p className="text-3xl font-bold text-foreground">58%</p>
-            <p className="text-sm text-muted-foreground mt-1">Comfortable levels</p>
-          </AQICard>
-          
-          <AQICard title="Wind" icon={<Wind className="h-4 w-4" />}>
-            <p className="text-3xl font-bold text-foreground">8 mph</p>
-            <p className="text-sm text-muted-foreground mt-1">NW direction</p>
+          <AQICard title="SAFAR Guidelines" icon={<Wind className="h-4 w-4" />}>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>Based on India's SAFAR (System of Air Quality and Weather Forecasting) standards.</p>
+              <div className="grid grid-cols-3 gap-2 mt-3 text-center">
+                <div className="p-2 bg-muted rounded">
+                  <div className="text-lg font-bold text-foreground">6</div>
+                  <div className="text-xs">Pollutants</div>
+                </div>
+                <div className="p-2 bg-muted rounded">
+                  <div className="text-lg font-bold text-foreground">500</div>
+                  <div className="text-xs">Max Scale</div>
+                </div>
+                <div className="p-2 bg-muted rounded">
+                  <div className="text-lg font-bold text-foreground">6</div>
+                  <div className="text-xs">Categories</div>
+                </div>
+              </div>
+            </div>
           </AQICard>
         </div>
       </div>
