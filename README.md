@@ -2,8 +2,6 @@
 
 A data-driven analytics platform that analyzes air quality trends and surfaces health insights using real-time and historical data for major Indian cities.
 
-![VayuWatch Dashboard](https://img.shields.io/badge/React-18.3-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-teal) ![Supabase](https://img.shields.io/badge/Supabase-Edge_Functions-green)
-
 ## 🌍 Overview
 
 VayuWatch monitors air quality across 15+ major Indian cities using CPCB (Central Pollution Control Board) standards. The platform provides real-time AQI data, historical trend analysis, and personalized health recommendations.
@@ -140,12 +138,6 @@ VayuWatch uses a custom dark theme optimized for data visualization:
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [CPCB](https://cpcb.nic.in/) - Air Quality Standards
-- [SAFAR](http://safar.tropmet.res.in/) - Air Quality Index Guidelines
-- India Meteorological Department
 
 ---
 
