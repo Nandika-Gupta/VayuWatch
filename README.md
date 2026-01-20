@@ -1,73 +1,152 @@
-# Welcome to your Lovable project
+# VayuWatch - India Air Quality Analytics Platform
 
-## Project info
+A data-driven analytics platform that analyzes air quality trends and surfaces health insights using real-time and historical data for major Indian cities.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+![VayuWatch Dashboard](https://img.shields.io/badge/React-18.3-blue) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue) ![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-teal) ![Supabase](https://img.shields.io/badge/Supabase-Edge_Functions-green)
 
-## How can I edit this code?
+## 🌍 Overview
 
-There are several ways of editing your application.
+VayuWatch monitors air quality across 15+ major Indian cities using CPCB (Central Pollution Control Board) standards. The platform provides real-time AQI data, historical trend analysis, and personalized health recommendations.
 
-**Use Lovable**
+## ✨ Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- **Real-time AQI Monitoring** - Live air quality data for major Indian metros
+- **Historical Trend Analysis** - 7-day trends with moving averages
+- **Health Insights** - CPCB-based health recommendations
+- **Pollutant Breakdown** - PM2.5, PM10, O3, NO2, SO2, CO levels
+- **Smart Alerts** - Threshold-based notifications
+- **City Comparison** - Compare AQI across multiple cities
+- **Dark Mode UI** - Developer-friendly interface
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🏗️ Project Structure
 
-**Use your preferred IDE**
+```
+├── src/                          # Frontend Application
+│   ├── components/               # React UI Components
+│   │   ├── ui/                   # Reusable UI primitives
+│   │   ├── AQICard.tsx          # AQI display card
+│   │   ├── AQIGauge.tsx         # Visual AQI gauge
+│   │   ├── TrendChart.tsx       # Recharts trend visualization
+│   │   ├── PollutantCard.tsx    # Individual pollutant display
+│   │   └── HealthAdvice.tsx     # Health recommendations
+│   ├── pages/                    # Route pages
+│   │   ├── Dashboard.tsx        # Main dashboard
+│   │   ├── Trends.tsx           # Historical trends
+│   │   ├── Insights.tsx         # Health insights
+│   │   └── Alerts.tsx           # Alert management
+│   ├── hooks/                    # Custom React hooks
+│   │   └── useAQI.ts            # AQI data fetching hook
+│   ├── lib/                      # Utility functions
+│   │   └── aqi.ts               # AQI calculations & helpers
+│   └── contexts/                 # React contexts
+│       └── AuthContext.tsx      # Authentication state
+│
+├── supabase/                     # Backend Services
+│   └── functions/                # Edge Functions (Serverless)
+│       ├── aqi-current/         # Current AQI endpoint
+│       ├── aqi-history/         # Historical data endpoint
+│       ├── aqi-collect/         # Data collection job
+│       └── aqi-seed/            # Database seeding
+│
+└── public/                       # Static assets
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🛠️ Tech Stack
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Frontend
+- **React 18** - UI library with hooks
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Utility-first styling
+- **Recharts** - Data visualization
+- **React Query** - Server state management
+- **React Router** - Client-side routing
 
-Follow these steps:
+### Backend
+- **Supabase** - PostgreSQL database + Auth
+- **Edge Functions** - Serverless API endpoints (Deno)
+- **Row Level Security** - Data protection
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Data Sources
+- Real-time AQI data simulation (expandable to CPCB API)
+- Weather integration ready
+- Historical data storage
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🚀 Getting Started
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Prerequisites
+- Node.js 18+
+- npm or yarn
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/vayuwatch.git
+cd vayuwatch
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Environment Variables
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Create a `.env` file in the root directory:
 
-**Use GitHub Codespaces**
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_PUBLISHABLE_KEY=your_anon_key
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📊 API Endpoints
 
-## What technologies are used for this project?
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/aqi-current` | GET | Current AQI for a city |
+| `/aqi-history` | GET | Historical AQI data |
+| `/aqi-collect` | POST | Trigger data collection |
 
-This project is built with:
+### Example Request
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```bash
+curl "https://your-project.supabase.co/functions/v1/aqi-current?city=Delhi"
+```
 
-## How can I deploy this project?
+## 🎨 Design System
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+VayuWatch uses a custom dark theme optimized for data visualization:
 
-## Can I connect a custom domain to my Lovable project?
+- **AQI Color Coding**: Green (Good) → Maroon (Severe)
+- **CPCB Standards**: India-specific thresholds
+- **Accessible**: WCAG 2.1 compliant contrast ratios
 
-Yes, you can!
+## 📈 Analytics Features
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- **Moving Averages**: 24-hour rolling average
+- **Trend Detection**: Improving/Stable/Worsening indicators
+- **Health Risk Assessment**: Low/Moderate/High/Severe/Critical
+- **Regional Comparison**: City vs national average
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [CPCB](https://cpcb.nic.in/) - Air Quality Standards
+- [SAFAR](http://safar.tropmet.res.in/) - Air Quality Index Guidelines
+- India Meteorological Department
+
+---
+
+**Built with ❤️ for cleaner air in India**
