@@ -81,7 +81,7 @@ OPENWEATHER_KEY=your_openweather_key  # https://openweathermap.org/api
 PORT=8080
 ```
 
-> **Note:** The WAQI token requires email verification after signup. Without a verified token, the app falls back to the WAQI demo feed (returns sample data).
+> **Note:** The WAQI token requires email verification after signup.
 
 ### Running Locally
 
@@ -93,31 +93,3 @@ pnpm --filter @workspace/api-server run dev
 pnpm --filter @workspace/vayuwatch run dev
 ```
 
----
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/healthz` | Health check |
-| GET | `/api/aqi?city=Delhi` | Live AQI data for a city |
-| GET | `/api/history?city=Delhi` | Last 7 days of AQI readings |
-
----
-
-## AQI Color Scale
-
-| AQI Range | Category | Color |
-|---|---|---|
-| 0–50 | Good | Green |
-| 51–100 | Moderate | Yellow |
-| 101–150 | Unhealthy for Sensitive Groups | Orange |
-| 151–200 | Unhealthy | Red |
-| 201–300 | Very Unhealthy | Purple |
-| 301+ | Hazardous | Maroon |
-
----
-
-## License
-
-MIT
