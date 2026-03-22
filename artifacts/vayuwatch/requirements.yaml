@@ -1,0 +1,19 @@
+packages:
+  "chart.js": "Required for historical trend charts"
+  "react-chartjs-2": "React wrapper for Chart.js"
+  "socket.io-client": "Real-time AQI updates from backend"
+  "date-fns": "Date formatting for charts and display"
+  "framer-motion": "Animations and smooth transitions for UI elements"
+  "lucide-react": "Icons for the interface"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility for merging Tailwind classes"
+
+images:
+  - path: "artifacts/vayuwatch/public/images/hero-bg.png"
+    description: "Abstract dark navy and deep indigo gradient mesh background with subtle glowing particulate matter and atmospheric light leaks, representing air and wind in a clean futuristic way"
+    aspect_ratio: "16:9"
+
+notes:
+  - Backend API uses @workspace/api-client-react hooks (useGetAqi, useGetHistory)
+  - Socket.io connects to root path '/' and listens for 'aqi:update' event
+  - Requires react-query queryClient to be exposed or accessible to update cache on socket events

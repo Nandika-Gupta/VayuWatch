@@ -1,0 +1,154 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.2.0
+  description: VayuWatch API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: aqi
+    description: Air quality index operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /aqi:
+    get:
+      operationId: getAqi
+      tags: [aqi]
+      summary: Get live AQI data for a city
+      parameters:
+        - name: city
+          in: query
+          required: true
+          schema:
+            type: string
+          description: City name to fetch AQI for
+      responses:
+        "200":
+          description: AQI data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AqiData"
+        "404":
+          description: City not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Error fetching AQI
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /history:
+    get:
+      operationId: getHistory
+      tags: [aqi]
+      summary: Get last 7 days of AQI readings for a city
+      parameters:
+        - name: city
+          in: query
+          required: true
+          schema:
+            type: string
+          description: City name to fetch history for
+      responses:
+        "200":
+          description: Historical AQI readings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AqiReading"
+        "500":
+          description: Error fetching history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    AqiData:
+      type: object
+      properties:
+        city:
+          type: string
+        aqi:
+          type: number
+        dominentpol:
+          type: string
+        time:
+          type: string
+        temperature:
+          type: number
+          nullable: true
+        humidity:
+          type: number
+          nullable: true
+        stationName:
+          type: string
+          nullable: true
+      required:
+        - city
+        - aqi
+        - dominentpol
+        - time
+    AqiReading:
+      type: object
+      properties:
+        id:
+          type: integer
+        city:
+          type: string
+        aqi:
+          type: number
+        dominentpol:
+          type: string
+        time:
+          type: string
+        temperature:
+          type: number
+          nullable: true
+        humidity:
+          type: number
+          nullable: true
+        createdAt:
+          type: string
+      required:
+        - id
+        - city
+        - aqi
+        - dominentpol
+        - time
+        - createdAt
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

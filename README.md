@@ -1,144 +1,123 @@
-# VayuWatch - India Air Quality Analytics Platform
+# VayuWatch 🌿
 
-A data-driven analytics platform that analyzes air quality trends and surfaces health insights using real-time and historical data for major Indian cities.
+A real-time air quality analytics platform that tracks AQI (Air Quality Index) data for cities around the world, with live updates, historical trends, and health recommendations.
 
-## 🌍 Overview
+![VayuWatch Dashboard](https://img.shields.io/badge/status-live-brightgreen) ![Node.js](https://img.shields.io/badge/Node.js-24-green) ![React](https://img.shields.io/badge/React-19-blue) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
 
-VayuWatch monitors air quality across 15+ major Indian cities using CPCB (Central Pollution Control Board) standards. The platform provides real-time AQI data, historical trend analysis, and personalized health recommendations.
+---
 
-## ✨ Features
+## Features
 
-- **Real-time AQI Monitoring** - Live air quality data for major Indian metros
-- **Historical Trend Analysis** - 7-day trends with moving averages
-- **Health Insights** - CPCB-based health recommendations
-- **Pollutant Breakdown** - PM2.5, PM10, O3, NO2, SO2, CO levels
-- **Smart Alerts** - Threshold-based notifications
-- **City Comparison** - Compare AQI across multiple cities
-- **Dark Mode UI** - Developer-friendly interface
+- **Live AQI Data** — Fetches real-time air quality readings from the [World Air Quality Index (WAQI)](https://waqi.info/) API
+- **City Search** — Track any city in the world by name
+- **Real-Time Push Updates** — Socket.io broadcasts new readings every 60 seconds without page refresh
+- **7-Day History Chart** — Visualises AQI trends over the past week using Chart.js
+- **Health Recommendations** — Contextual advice based on the current AQI level
+- **Weather Data** — Temperature and humidity from OpenWeatherMap
+- **Dark Green Theme** — Clean, air-inspired UI with dynamic AQI color coding
 
-## 🏗️ Project Structure
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, Vite, Tailwind CSS v4, Chart.js |
+| Backend | Node.js 24, Express 5, Socket.io |
+| Database | PostgreSQL + Drizzle ORM |
+| API | WAQI API, OpenWeatherMap API |
+| Monorepo | pnpm workspaces, TypeScript |
+| Code Gen | Orval (OpenAPI → React Query hooks + Zod schemas) |
+
+---
+
+## Project Structure
 
 ```
-├── src/                          # Frontend Application
-│   ├── components/               # React UI Components
-│   │   ├── ui/                   # Reusable UI primitives
-│   │   ├── AQICard.tsx          # AQI display card
-│   │   ├── AQIGauge.tsx         # Visual AQI gauge
-│   │   ├── TrendChart.tsx       # Recharts trend visualization
-│   │   ├── PollutantCard.tsx    # Individual pollutant display
-│   │   └── HealthAdvice.tsx     # Health recommendations
-│   ├── pages/                    # Route pages
-│   │   ├── Dashboard.tsx        # Main dashboard
-│   │   ├── Trends.tsx           # Historical trends
-│   │   ├── Insights.tsx         # Health insights
-│   │   └── Alerts.tsx           # Alert management
-│   ├── hooks/                    # Custom React hooks
-│   │   └── useAQI.ts            # AQI data fetching hook
-│   ├── lib/                      # Utility functions
-│   │   └── aqi.ts               # AQI calculations & helpers
-│   └── contexts/                 # React contexts
-│       └── AuthContext.tsx      # Authentication state
-│
-├── supabase/                     # Backend Services
-│   └── functions/                # Edge Functions (Serverless)
-│       ├── aqi-current/         # Current AQI endpoint
-│       ├── aqi-history/         # Historical data endpoint
-│       ├── aqi-collect/         # Data collection job
-│       └── aqi-seed/            # Database seeding
-│
-└── public/                       # Static assets
+vayuwatch/
+├── artifacts/
+│   ├── api-server/        # Express REST API + Socket.io server
+│   └── vayuwatch/         # React + Vite frontend
+├── lib/
+│   ├── api-spec/          # OpenAPI 3.0 specification
+│   ├── api-client-react/  # Generated React Query hooks (via Orval)
+│   ├── api-zod/           # Generated Zod validation schemas
+│   └── db/                # Drizzle ORM schema + PostgreSQL connection
+└── pnpm-workspace.yaml
 ```
 
-## 🛠️ Tech Stack
+---
 
-### Frontend
-- **React 18** - UI library with hooks
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Utility-first styling
-- **Recharts** - Data visualization
-- **React Query** - Server state management
-- **React Router** - Client-side routing
-
-### Backend
-- **Supabase** - PostgreSQL database + Auth
-- **Edge Functions** - Serverless API endpoints (Deno)
-- **Row Level Security** - Data protection
-
-### Data Sources
-- Real-time AQI data simulation (expandable to CPCB API)
-- Weather integration ready
-- Historical data storage
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-- Node.js 18+
-- npm or yarn
+
+- Node.js 20+
+- pnpm 9+
+- PostgreSQL database
 
 ### Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/vayuwatch.git
-cd vayuwatch
+git clone https://github.com/<your-username>/VayuWatch.git
+cd VayuWatch
 
 # Install dependencies
-npm install
+pnpm install
 
-# Start development server
-npm run dev
+# Push the database schema
+pnpm --filter @workspace/db run db:push
 ```
 
 ### Environment Variables
 
-Create a `.env` file in the root directory:
+Create a `.env` file or set these in your environment:
 
 ```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_PUBLISHABLE_KEY=your_anon_key
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+WAQI_TOKEN=your_waqi_api_token        # https://aqicn.org/data-platform/token/
+OPENWEATHER_KEY=your_openweather_key  # https://openweathermap.org/api
+PORT=8080
 ```
 
-## 📊 API Endpoints
+> **Note:** The WAQI token requires email verification after signup. Without a verified token, the app falls back to the WAQI demo feed (returns sample data).
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/aqi-current` | GET | Current AQI for a city |
-| `/aqi-history` | GET | Historical AQI data |
-| `/aqi-collect` | POST | Trigger data collection |
-
-### Example Request
+### Running Locally
 
 ```bash
-curl "https://your-project.supabase.co/functions/v1/aqi-current?city=Delhi"
+# Start the API server
+pnpm --filter @workspace/api-server run dev
+
+# Start the frontend (in a separate terminal)
+pnpm --filter @workspace/vayuwatch run dev
 ```
-
-## 🎨 Design System
-
-VayuWatch uses a custom dark theme optimized for data visualization:
-
-- **AQI Color Coding**: Green (Good) → Maroon (Severe)
-- **CPCB Standards**: India-specific thresholds
-- **Accessible**: WCAG 2.1 compliant contrast ratios
-
-## 📈 Analytics Features
-
-- **Moving Averages**: 24-hour rolling average
-- **Trend Detection**: Improving/Stable/Worsening indicators
-- **Health Risk Assessment**: Low/Moderate/High/Severe/Critical
-- **Regional Comparison**: City vs national average
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Built with ❤️ for cleaner air in India**
+## API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/healthz` | Health check |
+| GET | `/api/aqi?city=Delhi` | Live AQI data for a city |
+| GET | `/api/history?city=Delhi` | Last 7 days of AQI readings |
+
+---
+
+## AQI Color Scale
+
+| AQI Range | Category | Color |
+|---|---|---|
+| 0–50 | Good | Green |
+| 51–100 | Moderate | Yellow |
+| 101–150 | Unhealthy for Sensitive Groups | Orange |
+| 151–200 | Unhealthy | Red |
+| 201–300 | Very Unhealthy | Purple |
+| 301+ | Hazardous | Maroon |
+
+---
+
+## License
+
+MIT
